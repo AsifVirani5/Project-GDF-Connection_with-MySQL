@@ -1,0 +1,9 @@
+{
+    "params":{
+        "Username":"root", 
+        "Password" :"root",
+        "Hostname" :"127.0.0.1",
+        "Port" : "3306",
+        "database" :"viranis-Transient_Business"
+    }
+}

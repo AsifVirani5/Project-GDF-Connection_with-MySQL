@@ -1,0 +1,5 @@
+flask
+requests
+mysql.connector
+jsonify
+gunicorn
