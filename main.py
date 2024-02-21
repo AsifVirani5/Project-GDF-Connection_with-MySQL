@@ -60,6 +60,7 @@ def dialogflow_MySql_Connection():
     )
 
     # Insert data into table
+    #Insert data into table
     cursor.execute(
         "INSERT INTO `viranis-transient-business-data` ("
         "`user_query`, `cardtype`, `cardbrand`, `cardnumber`, `cardexpirydate`, `cvv`, `givenname`, `lastname`"
