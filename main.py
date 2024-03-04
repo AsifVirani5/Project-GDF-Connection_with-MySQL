@@ -15,6 +15,9 @@ def dialogflow_MySql_Connection():
         req = request.get_json(force = True)
         user_query = req["queryResult"]["queryText"]
         parameters = req["queryResult"]["parameters"]
+        Response_id = req["responseId"] 
+        phone_number = parameters.get("phonenumber")  
+        room_type = parameters.get("roomtype")     
         card_type = parameters.get("cardtype")
         card_brand = parameters.get("cardbrand")
         card_number = parameters.get("cardnumber")
@@ -23,7 +26,10 @@ def dialogflow_MySql_Connection():
         given_name = parameters.get("givenname")
         Last_name = parameters.get("lastname")
         data = { 
-            "user_query": user_query,
+            "userquery": user_query,
+            "responseId": Response_id,
+            "phonenumber": phone_number,
+            "roomtype" : room_type,
             "cardtype" : card_type,
             "cardbrand" : card_brand,
             "cardnumber" : card_number,
@@ -52,12 +58,15 @@ def dialogflow_MySql_Connection():
         # Create table
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS `viranistransientbusinessdata`("
-            "`user_query` VARCHAR(350), "
+            "`userquery` VARCHAR(350),"
+            "`roomtype` VARCHAR(350),"            
+            "`responseId` VARCHAR(350),"
+            "`phonenumber` VARCHAR(10),"            
             "`cardtype` VARCHAR(255), "
             "`cardbrand` VARCHAR(255), "
-            "`cardnumber` INT(16), "
+            "`cardnumber` VARCHAR(16), "
             "`cardexpirydate` VARCHAR(255), "
-            "`cvv` INT(7), "
+            "`cvv` VARCHAR(7), "
             "`givenname` VARCHAR(255), "
             "`lastname` VARCHAR(255)"
             ")"
@@ -66,17 +75,29 @@ def dialogflow_MySql_Connection():
         # Insert data into table
         cursor.execute(
             "INSERT INTO `viranistransientbusinessdata` ("
-            "`user_query`, `cardtype`, `cardbrand`, `cardnumber`, `cardexpirydate`, `cvv`, `givenname`, `lastname`"
-            ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (user_query, card_type, card_brand, card_number, card_expiry_date, cvv, given_name, Last_name)
+            "`userquery`, `roomtype`,`responseId`,`phonenumber`,`cardtype`, `cardbrand`, `cardnumber`, `cardexpirydate`, `cvv`, `givenname`, `lastname`"
+            ") VALUES (%s,%s,%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (user_query,room_type,Response_id, phone_number,  card_type, card_brand, card_number, card_expiry_date, cvv, given_name, Last_name)
         )
 
         cnx.commit()
 
         # Prepare the response for Dialogflow
-        dialogflow_response = {
-            "fulfillmentText": "Data has been stored successfully."
-        }
+        
+        
+        def create_response(text):
+         return {
+        'fulfillmentMessages': [{
+            'text': {
+                'text': [text]
+            }
+        }],
+        'source': 'webhook'
+    }
+             
+        fulfillment_text = req['queryResult']['fulfillmentMessages'][0]['text']['text'][0]
+        dialogflow_response = create_response(fulfillment_text)
+        
 
         return jsonify(dialogflow_response), 200
 
